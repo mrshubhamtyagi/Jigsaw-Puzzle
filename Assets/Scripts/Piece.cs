@@ -1,31 +1,126 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
+using DG.Tweening;
 
 public class Piece : MonoBehaviour
 {
-    public Vector2 actualPosition;
-    public Vector2 actualScale = Vector2.one;
-
+    public bool isPlaced = false;
+    public Vector3 actualPosition;
     private SpriteRenderer spriteRenderer;
+
+
+    private bool isDragging = false;
+    private float distance;
+    private Vector3 mouseStartPosition;
+    private Vector3 spriteStartPosition;
+    private Vector3 spriteDropPosition;
+
+
+    private SortingGroup sortingGroup;
+    private static int sortingOrder = 0;
 
     private void Awake()
     {
+        sortingGroup = transform.GetComponent<SortingGroup>();
         spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
     }
 
-    void Start()
+    private void OnEnable()
     {
-        actualPosition = transform.localPosition;
+        GameManager.OnGameStart += Event_OnGameStart;
+        GameManager.OnGameReset += Event_OnGameReset;
+        GameManager.OnPieceSpred += Event_OnPieceSpred;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnGameStart -= Event_OnGameStart;
+        GameManager.OnGameReset -= Event_OnGameReset;
+        GameManager.OnPieceSpred -= Event_OnPieceSpred;
+    }
+
+    private void Event_OnGameStart(Texture2D _pic, bool _isReset)
+    {
+        if (!_isReset)
+            transform.localPosition = actualPosition;
+
+        GetComponent<BoxCollider2D>().enabled = false;
+        distance = sortingOrder = sortingGroup.sortingOrder = 0;
         gameObject.name = $"Piece_{transform.GetSiblingIndex()}";
-        spriteRenderer.sprite = GameManager.Instance.picture;
-        spriteRenderer.transform.localScale = actualScale;
+        spriteRenderer.sprite = Sprite.Create(_pic, new Rect(0.0f, 0.0f, _pic.width, _pic.height), new Vector2(0.5f, 0.5f), 100.0f);
+        spriteRenderer.transform.localScale = GameManager.Instance.actualScale;
     }
 
-    void Update()
+
+    private void OnMouseDown()
     {
+        if (isPlaced) return;
 
+        isDragging = true;
+        sortingGroup.sortingOrder = sortingOrder++;
+        spriteStartPosition = transform.localPosition;
+        mouseStartPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mouseStartPosition.z = 0;
+    }
+
+    private void OnMouseDrag()
+    {
+        if (isPlaced) return;
+
+
+        if (isDragging)
+        {
+            Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition) - mouseStartPosition;
+            pos.z = 0;
+            transform.localPosition = spriteStartPosition + pos;
+        }
+    }
+
+    private void OnMouseUp()
+    {
+        if (isPlaced) return;
+
+
+        isDragging = false;
+        spriteDropPosition = transform.localPosition;
+
+        if (CheckIfPlacedAtRightPosition())
+        {
+            isPlaced = true;
+            transform.localPosition = actualPosition;
+            sortingGroup.sortingOrder = 0;
+            GetComponent<BoxCollider2D>().enabled = false;
+        }
     }
 
 
+    private bool CheckIfPlacedAtRightPosition()
+    {
+        distance = Vector3.Distance(spriteDropPosition, actualPosition);
+        if (distance <= GameManager.Instance.snapRange)
+            return true;
+        else
+            return false;
+    }
 
+
+    private void Event_OnGameReset()
+    {
+        transform.DOLocalMove(actualPosition, GameManager.Instance.animTime).SetEase(GameManager.Instance.easeType);
+        GetComponent<BoxCollider2D>().enabled = false;
+        distance = sortingOrder = sortingGroup.sortingOrder = 0;
+        spriteRenderer.sprite = null;
+        isPlaced = false;
+
+    }
+
+    private void Event_OnPieceSpred()
+    {
+        float _randX = Random.Range(GameManager.Instance.lowerBound.x, GameManager.Instance.upperBound.x);
+        float _randY = Random.Range(GameManager.Instance.lowerBound.y, GameManager.Instance.upperBound.y);
+
+        transform.DOLocalMove(new Vector3(_randX, _randY, 0), GameManager.Instance.animTime).SetEase(GameManager.Instance.easeType);
+        GetComponent<BoxCollider2D>().enabled = true;
+    }
 
 }

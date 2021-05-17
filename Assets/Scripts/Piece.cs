@@ -23,27 +23,31 @@ public class Piece : MonoBehaviour
     {
         sortingGroup = transform.GetComponent<SortingGroup>();
         spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
+        GameManager.totalPieces++;
     }
 
     private void OnEnable()
     {
         GameManager.OnGameStart += Event_OnGameStart;
         GameManager.OnGameReset += Event_OnGameReset;
-        GameManager.OnPieceSpred += Event_OnPieceSpred;
+        GameManager.OnPieceSpread += Event_OnPieceSpread;
     }
 
     private void OnDisable()
     {
         GameManager.OnGameStart -= Event_OnGameStart;
         GameManager.OnGameReset -= Event_OnGameReset;
-        GameManager.OnPieceSpred -= Event_OnPieceSpred;
+        GameManager.OnPieceSpread -= Event_OnPieceSpread;
     }
 
     private void Event_OnGameStart(Texture2D _pic, bool _isReset)
     {
         if (!_isReset)
+        {
             transform.localPosition = actualPosition;
+        }
 
+        isPlaced = false;
         GetComponent<BoxCollider2D>().enabled = false;
         distance = sortingOrder = sortingGroup.sortingOrder = 0;
         gameObject.name = $"Piece_{transform.GetSiblingIndex()}";
@@ -90,6 +94,10 @@ public class Piece : MonoBehaviour
             transform.localPosition = actualPosition;
             sortingGroup.sortingOrder = 0;
             GetComponent<BoxCollider2D>().enabled = false;
+            GameManager.piecesPlaced++;
+
+            if (GameManager.piecesPlaced >= GameManager.totalPieces)
+                UIManager.Instance.GameComplete();
         }
     }
 
@@ -114,7 +122,7 @@ public class Piece : MonoBehaviour
 
     }
 
-    private void Event_OnPieceSpred()
+    private void Event_OnPieceSpread()
     {
         float _randX = Random.Range(GameManager.Instance.lowerBound.x, GameManager.Instance.upperBound.x);
         float _randY = Random.Range(GameManager.Instance.lowerBound.y, GameManager.Instance.upperBound.y);
@@ -123,4 +131,15 @@ public class Piece : MonoBehaviour
         GetComponent<BoxCollider2D>().enabled = true;
     }
 
+    public void PlacePieceToPosition()
+    {
+        isPlaced = true;
+        transform.DOLocalMove(new Vector3(actualPosition.x, actualPosition.y, actualPosition.z), GameManager.Instance.animTime).SetEase(GameManager.Instance.easeType);
+        sortingGroup.sortingOrder = 0;
+        GetComponent<BoxCollider2D>().enabled = false;
+        GameManager.piecesPlaced++;
+
+        if (GameManager.piecesPlaced >= GameManager.totalPieces)
+            UIManager.Instance.GameComplete();
+    }
 }

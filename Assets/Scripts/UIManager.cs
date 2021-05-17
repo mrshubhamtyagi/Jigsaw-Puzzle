@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
     public GameObject homeScreen;
     public GameObject gameScreen;
     public GameObject gameplayScreen;
+    public GameObject gameCompleteScreen;
 
     [Header("-----Sounds-----")]
     public Image musicImageHomeScreen;
@@ -29,10 +30,15 @@ public class UIManager : MonoBehaviour
 
     private bool isMusicOn = true;
 
+    public static UIManager Instance;
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     void Start()
     {
-        //LoadHomeScreen();
+        LoadHomeScreen();
     }
 
 
@@ -102,6 +108,10 @@ public class UIManager : MonoBehaviour
         click.Play();
         GameManager.Instance.selectedPicture = null;
         LoadHomeScreen();
+        GameManager.totalPieces = 0;
+
+        if (isMusicOn)
+            music.Play();
     }
 
     public void EyeClick()
@@ -109,5 +119,13 @@ public class UIManager : MonoBehaviour
         click.Play();
         pictureBlueprint.SetActive(!pictureBlueprint.activeInHierarchy);
         eyeImage.sprite = pictureBlueprint.activeInHierarchy ? eyeOFF : eyeON;
+    }
+
+    public void GameComplete()
+    {
+        print("Game Complete");
+        gameCompleteScreen.SetActive(true);
+        music.Stop();
+        happy.Play();
     }
 }

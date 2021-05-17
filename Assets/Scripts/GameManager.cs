@@ -4,6 +4,8 @@ using DG.Tweening;
 
 public class GameManager : MonoBehaviour
 {
+    public bool hint = false;
+
     [Header("-----Settings-----")]
     public string playstoreLink = "www.google.com";
     public float startDelay = 2f;
@@ -21,6 +23,8 @@ public class GameManager : MonoBehaviour
     public Sprite picture;
     public SpriteRenderer picBlueprint;
 
+    public static int totalPieces;
+    public static int piecesPlaced;
 
     #region Events
     public static event Action<Texture2D, bool> OnGameStart;
@@ -35,10 +39,10 @@ public class GameManager : MonoBehaviour
         OnGameReset?.Invoke();
     }
 
-    public static event Action OnPieceSpred;
+    public static event Action OnPieceSpread;
     public void Event_OnPieceSpred()
     {
-        OnPieceSpred?.Invoke();
+        OnPieceSpread?.Invoke();
     }
     #endregion
 
@@ -55,9 +59,19 @@ public class GameManager : MonoBehaviour
 
     }
 
+    private void Update()
+    {
+        if (hint)
+        {
+            hint = false;
+            HintClick();
+        }
+    }
+
 
     public void StartGame(bool _isReset)
     {
+        piecesPlaced = 0;
         puzzleParent.SetActive(true);
         picBlueprint.sprite = Sprite.Create(selectedPicture, new Rect(0.0f, 0.0f, selectedPicture.width, selectedPicture.height), new Vector2(0.5f, 0.5f), 100.0f);
         Event_OnGameStart(selectedPicture, _isReset);
@@ -70,6 +84,27 @@ public class GameManager : MonoBehaviour
     {
         Event_OnGameReset();
         Invoke("StartGame", 2f);
+    }
+
+
+    public void HintClick()
+    {
+        int _safeCount = 1000;
+        if (piecesPlaced <= totalPieces)
+        {
+            Transform _puzzle = puzzleParent.transform.GetChild(3);
+
+            while (_safeCount-- > 0)
+            {
+                int _childIndex = UnityEngine.Random.Range(0, _puzzle.childCount - 1);
+                if (!_puzzle.GetChild(_childIndex).GetComponent<Piece>().isPlaced)
+                {
+                    _puzzle.GetChild(_childIndex).GetComponent<Piece>().PlacePieceToPosition();
+                    return;
+                }
+
+            }
+        }
     }
 
 }

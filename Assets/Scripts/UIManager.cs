@@ -3,9 +3,11 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    public float splashScreenHoldTime = 2f;
     public GameObject playBtn;
 
     [Header("-----Screens-----")]
+    public GameObject splashScreen;
     public GameObject homeScreen;
     public GameObject gameScreen;
     public GameObject gameplayScreen;
@@ -38,12 +40,15 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-        LoadHomeScreen();
+        splashScreen.SetActive(true);
+        Invoke("LoadHomeScreen", splashScreenHoldTime);
     }
 
 
     private void LoadHomeScreen()
     {
+        splashScreen.SetActive(false);
+        music.Play();
         playBtn.SetActive(false);
         homeScreen.SetActive(true);
         gameScreen.SetActive(false);
@@ -74,7 +79,7 @@ public class UIManager : MonoBehaviour
     {
         click.Play();
         NativeShare nativeShare = new NativeShare();
-        nativeShare.SetTitle("Download <b>Virtue Dasavatharam Puzzle</b> game from the fiven link.").SetText(GameManager.Instance.playstoreLink).Share();
+        nativeShare.SetTitle("Virtue Dasavatharam Puzzle Game").SetText($"Download Virtue Dasavatharam Puzzle game from the link below/n/n{GameManager.Instance.playstoreLink}").Share();
     }
 
 
@@ -108,7 +113,7 @@ public class UIManager : MonoBehaviour
         click.Play();
         GameManager.Instance.selectedPicture = null;
         LoadHomeScreen();
-        GameManager.totalPieces = 0;
+        GameManager.Instance.totalPieces = 0;
 
         if (isMusicOn)
             music.Play();
@@ -127,5 +132,26 @@ public class UIManager : MonoBehaviour
         gameCompleteScreen.SetActive(true);
         music.Stop();
         happy.Play();
+        GameManager.Instance.piecesPlaced = 0;
+    }
+
+    public void HintClick()
+    {
+        int _safeCount = 1000;
+        if (GameManager.Instance.piecesPlaced <= GameManager.Instance.totalPieces)
+        {
+            Transform _puzzle = gameplayScreen.transform.GetChild(3);
+
+            while (_safeCount-- > 0)
+            {
+                int _childIndex = Random.Range(0, _puzzle.childCount - 1);
+                if (!_puzzle.GetChild(_childIndex).GetComponent<Piece>().isPlaced)
+                {
+                    _puzzle.GetChild(_childIndex).GetComponent<Piece>().PlacePieceToPosition();
+                    return;
+                }
+
+            }
+        }
     }
 }

@@ -15,10 +15,18 @@ public class PicturePrefab : MonoBehaviour
         border.enabled = false;
     }
 
+    public void SetPicture(Texture2D _avatar)
+    {
+        picture.texture = _avatar;
+    }
+
+
     public void PictureClick()
     {
         if (lastSelcetedBorder)
             lastSelcetedBorder.enabled = false;
+
+        UIManager.Instance.playBtn.SetActive(true);
 
         GameManager.Instance.selectedPicture = (Texture2D)picture.mainTexture;
         lastSelcetedBorder = border;

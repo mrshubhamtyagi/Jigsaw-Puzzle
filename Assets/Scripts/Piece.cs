@@ -58,7 +58,7 @@ public class Piece : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (isPlaced) return;
+        if (isPlaced || !GameManager.Instance.hasGameStarted) return;
 
         isDragging = true;
         sortingGroup.sortingOrder = sortingOrder++;
@@ -69,7 +69,7 @@ public class Piece : MonoBehaviour
 
     private void OnMouseDrag()
     {
-        if (isPlaced) return;
+        if (isPlaced || !GameManager.Instance.hasGameStarted) return;
 
 
         if (isDragging)
@@ -82,7 +82,7 @@ public class Piece : MonoBehaviour
 
     private void OnMouseUp()
     {
-        if (isPlaced) return;
+        if (isPlaced || !GameManager.Instance.hasGameStarted) return;
 
 
         isDragging = false;

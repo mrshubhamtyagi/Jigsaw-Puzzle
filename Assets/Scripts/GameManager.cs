@@ -4,6 +4,7 @@ using DG.Tweening;
 
 public class GameManager : MonoBehaviour
 {
+    public bool hasGameStarted = false;
     public bool hint = false;
 
     [Header("-----Settings-----")]
@@ -76,7 +77,17 @@ public class GameManager : MonoBehaviour
         picBlueprint.sprite = Sprite.Create(selectedPicture, new Rect(0.0f, 0.0f, selectedPicture.width, selectedPicture.height), new Vector2(0.5f, 0.5f), 100.0f);
         Event_OnGameStart(selectedPicture, _isReset);
 
+
         Invoke("Event_OnPieceSpred", startDelay);
+
+        hasGameStarted = false;
+        Invoke("MakeGameStarted", startDelay + 1f);
+
+    }
+
+    private void MakeGameStarted()
+    {
+        hasGameStarted = true;
     }
 
 

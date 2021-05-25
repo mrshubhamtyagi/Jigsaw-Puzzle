@@ -9,9 +9,6 @@ public class UIManager : MonoBehaviour
     public Transform container;
     public GameObject prefab;
 
-    [Header("-----Avatars-----")]
-    public List<Texture2D> avatarList;
-
     [Header("-----Hint-----")]
     public int hintCount = 2;
     public Button hintBtn;
@@ -42,6 +39,9 @@ public class UIManager : MonoBehaviour
     public Sprite eyeON;
     public Sprite eyeOFF;
 
+
+    [Header("-----Avatars-----")]
+    public List<Texture2D> avatarList;
 
     private bool isMusicOn = true;
 

@@ -9,19 +9,26 @@ public class UIManager : MonoBehaviour
     public Transform container;
     public GameObject prefab;
 
+    [Header("-----Boards-----")]
+    public GameObject parent_4x4;
+    public GameObject picBlueprint_4x4;
+    public GameObject parent_6x6;
+    public GameObject picBlueprint_6x6;
+
     [Header("-----Hint-----")]
-    public int hintCount = 2;
+    public int hintCountEasy = 1;
+    public int hintCountHard = 3;
     public Button hintBtn;
-    public bool showHint = false;
+    public bool showHint = true;
 
 
-    [Header("-----Screens-----")]
+    [Header("-----Screens & Popups-----")]
     public GameObject splashScreen;
     public GameObject homeScreen;
     public GameObject gameScreen;
     public GameObject gameplayScreen;
-    public GameObject gameCompleteScreen;
-    public GameObject exitScreen;
+    public GameObject gameCompletePopup;
+    public GameObject exitPopup;
 
     [Header("-----Sounds-----")]
     public Image musicImageHomeScreen;
@@ -34,7 +41,6 @@ public class UIManager : MonoBehaviour
 
 
     [Header("-----Eye-----")]
-    public GameObject pictureBlueprint;
     public Image eyeImage;
     public Sprite eyeON;
     public Sprite eyeOFF;
@@ -44,6 +50,17 @@ public class UIManager : MonoBehaviour
     public List<Texture2D> avatarList;
 
     private bool isMusicOn = true;
+
+
+
+    public enum Difficulty
+    {
+        Easy,
+        Hard
+    }
+    public Difficulty difficulty = Difficulty.Easy;
+
+
 
     public static UIManager Instance;
     private void Awake()
@@ -58,8 +75,11 @@ public class UIManager : MonoBehaviour
             hintBtn.interactable = false;
             hintBtn.gameObject.SetActive(false);
         }
-        exitScreen.SetActive(false);
+        exitPopup.SetActive(false);
         splashScreen.SetActive(true);
+
+        parent_4x4.SetActive(false);
+        parent_6x6.SetActive(false);
 
         Init();
         Invoke("LoadHomeScreen", splashScreenHoldTime);
@@ -83,7 +103,7 @@ public class UIManager : MonoBehaviour
     private void Update()
     {
         if (Input.GetKey(KeyCode.Escape) && homeScreen.activeInHierarchy && !gameScreen.activeInHierarchy)
-            exitScreen.SetActive(true);
+            exitPopup.SetActive(true);
     }
 
     public void ExitClick()
@@ -135,13 +155,17 @@ public class UIManager : MonoBehaviour
     }
 
 
-    public void StartGamePlay()
+    public void StartGamePlay(int _difficulty)
     {
+        difficulty = (Difficulty)_difficulty;
+
         click.Play();
         homeScreen.SetActive(false);
         gameScreen.SetActive(true);
-        pictureBlueprint.SetActive(false);
-        hintCount = 2;
+        picBlueprint_4x4.SetActive(false);
+        picBlueprint_6x6.SetActive(false);
+        hintCountEasy = 1;
+        hintCountHard = 3;
         if (showHint)
         {
             hintBtn.interactable = true;
@@ -176,6 +200,9 @@ public class UIManager : MonoBehaviour
         LoadHomeScreen();
         GameManager.Instance.totalPieces = 0;
 
+        parent_4x4.SetActive(false);
+        parent_6x6.SetActive(false);
+
         if (isMusicOn)
             music.Play();
     }
@@ -186,6 +213,8 @@ public class UIManager : MonoBehaviour
             return;
 
         click.Play();
+
+        GameObject pictureBlueprint = difficulty == Difficulty.Easy ? picBlueprint_4x4 : picBlueprint_6x6;
         pictureBlueprint.SetActive(!pictureBlueprint.activeInHierarchy);
         eyeImage.sprite = pictureBlueprint.activeInHierarchy ? eyeOFF : eyeON;
     }
@@ -193,7 +222,7 @@ public class UIManager : MonoBehaviour
     public void GameComplete()
     {
         print("Game Complete");
-        gameCompleteScreen.SetActive(true);
+        gameCompletePopup.SetActive(true);
         music.Stop();
         happy.Play();
         GameManager.Instance.piecesPlaced = 0;
@@ -204,13 +233,24 @@ public class UIManager : MonoBehaviour
         if (!GameManager.Instance.hasGameStarted)
             return;
 
-        if (--hintCount <= 0)
-            hintBtn.interactable = false;
+        Transform _puzzle = null;
+
+        if (difficulty == Difficulty.Easy)
+        {
+            _puzzle = parent_4x4.transform.GetChild(2);
+            if (--hintCountEasy <= 0)
+                hintBtn.interactable = false;
+        }
+        else
+        {
+            _puzzle = parent_6x6.transform.GetChild(2);
+            if (--hintCountHard <= 0)
+                hintBtn.interactable = false;
+        }
+
 
         if (GameManager.Instance.piecesPlaced <= GameManager.Instance.totalPieces)
         {
-            Transform _puzzle = gameplayScreen.transform.GetChild(3);
-
             for (int i = 1000; i > 0; i--)
             {
                 int _childIndex = Random.Range(0, _puzzle.childCount - 1);
@@ -221,5 +261,11 @@ public class UIManager : MonoBehaviour
                 }
             }
         }
+    }
+
+
+    public void OpenURL()
+    {
+        Application.OpenURL(GameManager.Instance.websiteLink);
     }
 }

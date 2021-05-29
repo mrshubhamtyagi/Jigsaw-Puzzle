@@ -5,24 +5,30 @@ using DG.Tweening;
 public class GameManager : MonoBehaviour
 {
     public bool hasGameStarted = false;
-    public bool hint = false;
+
 
     [Header("-----Settings-----")]
     public string playstoreLink = "www.google.com";
+    public string websiteLink = "www.srivaishnavagurukulam.com";
     public float startDelay = 2f;
     public float animTime = 1f;
     public float snapRange = 0.4f;
     public Ease easeType = Ease.InExpo;
     [Space(20)]
     public Texture2D selectedPicture;
-    public Vector2 actualScale = Vector2.one;
-    public Vector2 lowerBound;
-    public Vector2 upperBound;
+    //public Vector2 actualScale = Vector2.one;
+    public Vector2 lowerBound_4x4;
+    public Vector2 upperBound_4x4;
+    [Space(20)]
+    public Vector2 lowerBound_6x6;
+    public Vector2 upperBound_6x6;
 
     [Header("-----References-----")]
     public GameObject puzzleParent;
-    public Sprite picture;
-    public SpriteRenderer picBlueprint;
+    public GameObject puzzleParent_4x4;
+    public GameObject puzzleParent_6x6;
+    public SpriteRenderer picBlueprint_4x4;
+    public SpriteRenderer picBlueprint_6x6;
 
     public int totalPieces;
     public int piecesPlaced;
@@ -60,21 +66,24 @@ public class GameManager : MonoBehaviour
 
     }
 
-    private void Update()
-    {
-        if (hint)
-        {
-            hint = false;
-            UIManager.Instance.HintClick();
-        }
-    }
-
-
     public void StartGame(bool _isReset)
     {
         piecesPlaced = 0;
+
         puzzleParent.SetActive(true);
-        picBlueprint.sprite = Sprite.Create(selectedPicture, new Rect(0.0f, 0.0f, selectedPicture.width, selectedPicture.height), new Vector2(0.5f, 0.5f), 100.0f);
+        if (UIManager.Instance.difficulty == UIManager.Difficulty.Easy)
+        {
+            puzzleParent_6x6.SetActive(false);
+            puzzleParent_4x4.SetActive(true);
+            picBlueprint_4x4.sprite = Sprite.Create(selectedPicture, new Rect(0.0f, 0.0f, selectedPicture.width, selectedPicture.height), new Vector2(0.5f, 0.5f), 100.0f);
+        }
+        else
+        {
+            puzzleParent_4x4.SetActive(false);
+            puzzleParent_6x6.SetActive(true);
+            picBlueprint_6x6.sprite = Sprite.Create(selectedPicture, new Rect(0.0f, 0.0f, selectedPicture.width, selectedPicture.height), new Vector2(0.5f, 0.5f), 100.0f);
+        }
+
         Event_OnGameStart(selectedPicture, _isReset);
 
 

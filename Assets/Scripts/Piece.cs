@@ -9,7 +9,7 @@ public class Piece : MonoBehaviour
     private SpriteRenderer spriteRenderer;
 
 
-    private bool isDragging = false;
+    [SerializeField] private bool isDragging = false;
     private float distance;
     private Vector3 mouseStartPosition;
     private Vector3 spriteStartPosition;
@@ -52,7 +52,7 @@ public class Piece : MonoBehaviour
         distance = sortingOrder = sortingGroup.sortingOrder = 0;
         gameObject.name = $"Piece_{transform.GetSiblingIndex()}";
         spriteRenderer.sprite = Sprite.Create(_pic, new Rect(0.0f, 0.0f, _pic.width, _pic.height), new Vector2(0.5f, 0.5f), 100.0f);
-        spriteRenderer.transform.localScale = GameManager.Instance.actualScale;
+        //spriteRenderer.transform.localScale = GameManager.Instance.actualScale;
     }
 
 
@@ -64,7 +64,6 @@ public class Piece : MonoBehaviour
         sortingGroup.sortingOrder = sortingOrder++;
         spriteStartPosition = transform.localPosition;
         mouseStartPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouseStartPosition.z = 0;
     }
 
     private void OnMouseDrag()
@@ -82,10 +81,9 @@ public class Piece : MonoBehaviour
 
     private void OnMouseUp()
     {
+        isDragging = false;
         if (isPlaced || !GameManager.Instance.hasGameStarted) return;
 
-
-        isDragging = false;
         spriteDropPosition = transform.localPosition;
 
         if (CheckIfPlacedAtRightPosition())
@@ -124,8 +122,15 @@ public class Piece : MonoBehaviour
 
     private void Event_OnPieceSpread()
     {
-        float _randX = Random.Range(GameManager.Instance.lowerBound.x, GameManager.Instance.upperBound.x);
-        float _randY = Random.Range(GameManager.Instance.lowerBound.y, GameManager.Instance.upperBound.y);
+        float _lbX = UIManager.Instance.difficulty == UIManager.Difficulty.Easy ? GameManager.Instance.lowerBound_4x4.x : GameManager.Instance.lowerBound_6x6.x;
+        float _ubX = UIManager.Instance.difficulty == UIManager.Difficulty.Easy ? GameManager.Instance.upperBound_4x4.x : GameManager.Instance.upperBound_6x6.x;
+
+        float _lbY = UIManager.Instance.difficulty == UIManager.Difficulty.Easy ? GameManager.Instance.lowerBound_4x4.y : GameManager.Instance.lowerBound_6x6.y;
+        float _ubY = UIManager.Instance.difficulty == UIManager.Difficulty.Easy ? GameManager.Instance.upperBound_4x4.y : GameManager.Instance.upperBound_6x6.y;
+
+
+        float _randX = Random.Range(_lbX, _ubX);
+        float _randY = Random.Range(_lbY, _ubY);
 
         transform.DOLocalMove(new Vector3(_randX, _randY, 0), GameManager.Instance.animTime).SetEase(GameManager.Instance.easeType);
         GetComponent<BoxCollider2D>().enabled = true;

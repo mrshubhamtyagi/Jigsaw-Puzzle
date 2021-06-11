@@ -702,8 +702,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hasGameStarted: 0
-  hint: 0
   playstoreLink: www.google.com
+  websiteLink: www.srivaishnavagurukulam.com
   startDelay: 2
   animTime: 1
   snapRange: 0.5
@@ -1536,6 +1536,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 1640823502}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: StartGamePlay
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 0
 --- !u!114 &317687912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5721,7 +5733,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 149062622c65ad1499b4ba1f96ab0ac0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  splashScreenHoldTime: 3
+  splashScreenHoldTime: 5
   playBtn: {fileID: 317687909}
   container: {fileID: 1329826639}
   prefab: {fileID: 3488899653271779955, guid: 029dede29848d174cbf94d0e0ebc1cc3, type: 3}
